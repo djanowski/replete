@@ -14,3 +14,16 @@ end
 test "takes a maximum parameter" do
   assert Replete.search("marcell", 2) == %w(marcella marcelle)
 end
+
+test "allows deletion of words" do
+  names = %w{
+    abagael
+    abagail
+    abbe
+    abbey
+  }
+
+  Replete.delete(names)
+
+  names.each { |name| assert Replete.search(name).size == 0 }
+end

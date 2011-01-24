@@ -3,12 +3,20 @@ require "nest"
 
 class Replete
   def self.index(words)
+    iterate(words) { |w| key.zadd(0, w) }
+  end
+
+  def self.delete(words)
+    iterate(words) { |w| key.zrem(w) }
+  end
+
+  def self.iterate(words)
     words.each do |word|
       size(word).times do |i|
-        key.zadd(0, word[0...(i + 1)])
+        yield word[0...(i + 1)]
       end
 
-      key.zadd(0, "#{word}*")
+      yield "#{word}*"
     end
   end
 
