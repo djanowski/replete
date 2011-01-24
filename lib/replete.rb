@@ -26,7 +26,9 @@ class Replete
     results = []
 
     while results.size < count
-      key.zrange(start, start + BUFFER - 1).each do |entry|
+      break if (range = key.zrange(start, start + BUFFER - 1)).empty?
+
+      range.each do |entry|
         break count = results.size unless entry.index(prefix) == 0
 
         results << entry[0...-1] if entry[-1, 1] == "*" && results.size < count
