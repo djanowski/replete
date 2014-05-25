@@ -3,12 +3,20 @@ require "nest"
 
 class Replete
   def self.index(words)
+    iterate(words) { |w| key.zadd(0, w) }
+  end
+
+  def self.delete(words)
+    iterate(words) { |w| key.zrem(w) }
+  end
+
+  def self.iterate(words)
     words.each do |word|
       size(word).times do |i|
-        key.zadd(0, word[0...(i + 1)])
+        yield word[0...(i + 1)]
       end
 
-      key.zadd(0, "#{word}*")
+      yield "#{word}*"
     end
   end
 
@@ -18,7 +26,9 @@ class Replete
     results = []
 
     while results.size < count
-      key.zrange(start, start + BUFFER - 1).each do |entry|
+      break if (range = key.zrange(start, start + BUFFER - 1)).empty?
+
+      range.each do |entry|
         break count = results.size unless entry.index(prefix) == 0
 
         results << entry[0...-1] if entry[-1, 1] == "*" && results.size < count
